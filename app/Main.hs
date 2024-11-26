@@ -1,24 +1,27 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ImplicitParams #-}
+
 module Main where
 
 import System.Info (fullCompilerVersion)
 import Data.Version (showVersion)
-import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack)
-
-import RequireCallStack (RequireCallStack, provideCallStack)
+import GHC.Stack (HasCallStack, CallStack, SrcLoc (..), callStack, getCallStack)
 
 main :: IO ()
 main = do
-    putStrLn $ "Running in GHC " <> showVersion fullCompilerVersion
-    provideCallStack (run outer)
+  putStrLn $ "Running in GHC " <> showVersion fullCompilerVersion
+  run outer
+  where
+    ?myImplicitParam = ()
 
-inner :: RequireCallStack => IO ()
+inner :: (HasCallStack, ?myImplicitParam :: ()) => IO ()
 inner = run $ pure ()
 
-outer :: RequireCallStack => IO ()
+outer :: (HasCallStack, ?myImplicitParam :: ()) => IO ()
 outer = run inner
 
 run ::
-  RequireCallStack =>
+  (HasCallStack, ?myImplicitParam :: ()) =>
   IO a ->
   IO a
 run action = do
