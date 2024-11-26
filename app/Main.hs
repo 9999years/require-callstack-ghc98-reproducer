@@ -14,14 +14,16 @@ main = do
   where
     ?myImplicitParam = ()
 
-inner :: (HasCallStack, ?myImplicitParam :: ()) => IO ()
+type MyConstraints = (HasCallStack, ?myImplicitParam :: ())
+
+inner :: MyConstraints => IO ()
 inner = run $ pure ()
 
-outer :: (HasCallStack, ?myImplicitParam :: ()) => IO ()
+outer :: MyConstraints => IO ()
 outer = run inner
 
 run ::
-  (HasCallStack, ?myImplicitParam :: ()) =>
+  MyConstraints =>
   IO a ->
   IO a
 run action = do
